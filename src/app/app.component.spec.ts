@@ -14,16 +14,16 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy();
   });
 
-  it(`should have the 'charta-scanner' title`, () => {
+  it(`should have the 'ngPhoto2' title`, () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
-    expect(app.title).toEqual('charta-scanner');
+    expect(app.title).toEqual('ngPhoto2');
   });
 
   it('should render title', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, charta-scanner');
+    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, ngPhoto2!');
   });
 });

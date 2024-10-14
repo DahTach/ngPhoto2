@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "charta-scanner": {
+    "ngPhoto2": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -17,7 +17,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/charta-scanner",
+            "outputPath": "dist/ngPhoto2",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [
@@ -34,7 +34,9 @@
                 "glob": "*.wasm",
                 "input": "src/app/lib/",
                 "output": "/"
-              }
+              },
+              "src/coi-serviceworker.js",
+              "src/coi-setup.js"
             ],
             "styles": [
               "src/styles.scss"
@@ -55,7 +57,14 @@
                   "maximumError": "4kB"
                 }
               ],
-              "outputHashing": "all"
+              "outputHashing": "all",
+              "serviceWorker": "ngsw-config.json",
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.prod.ts"
+                }
+              ]
             },
             "development": {
               "optimization": false,
@@ -75,10 +84,10 @@
           },
           "configurations": {
             "production": {
-              "buildTarget": "charta-scanner:build:production"
+              "buildTarget": "ngPhoto2:build:production"
             },
             "development": {
-              "buildTarget": "charta-scanner:build:development"
+              "buildTarget": "ngPhoto2:build:development"
             }
           },
           "defaultConfiguration": "development"
