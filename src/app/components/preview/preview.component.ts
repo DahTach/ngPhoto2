@@ -25,8 +25,10 @@ export class PreviewComponent {
 
   async togglePreview() {
     this.preview = !this.preview;
-    if (this.preview) {
+    if (this.cameraService.isConnected() && this.preview) {
       this.streamPreview();
+    } else {
+      console.log('No camera connected');
     }
   }
 

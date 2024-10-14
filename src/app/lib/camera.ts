@@ -1,3 +1,4 @@
+/// <reference types="w3c-web-usb" />
 import initModule, { Context } from '@lib/libapi';
 import { WritableSignal, signal, effect } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
