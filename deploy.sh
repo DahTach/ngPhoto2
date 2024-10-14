@@ -12,7 +12,7 @@
 # TODO: does --base-href "/ngPhoto2/" eliminate the need for the <base> tag in index.html?
 echo "Deploying to GitHub Pages"
 echo "Building the project"
-ng build --co nfiguration production
+ng build --configuration production
 echo "Copying the built files to the docs folder"
 cp -r dist/ngPhoto2/* docs
 echo "Setting up the GitHub Pages configuration"
