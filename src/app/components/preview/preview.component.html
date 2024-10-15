@@ -32,6 +32,8 @@
     </button>
   </div>
   <div class="px-4 py-5 sm:p-6">
-    <canvas #preview_canvas id="preview_canvas" class="bg-gray-200 h-auto w-[80vw] rounded-md"></canvas>
+    <canvas #preview_canvas id="preview_canvas" [style.width.px]="previewDimensions?.width"
+      [style.height.px]="previewDimensions?.height" class="bg-gray-200 rounded-md">
+    </canvas>
   </div>
 </div>

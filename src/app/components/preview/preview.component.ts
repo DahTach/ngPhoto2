@@ -14,11 +14,14 @@ export class PreviewComponent {
   @ViewChild('preview_canvas', { static: true }) previewCanvas!: ElementRef<HTMLCanvasElement>;
 
   preview = false;
+  previewDimensions: { width: number, height: number } | null = null;
 
-  constructor(public cameraService: CameraService) {
+  constructor(
+    public cameraService: CameraService,
+  ) {
     effect(() => {
       if (this.cameraService.state() === CameraState.DISCONNECTED) {
-        this.preview = false;
+        this.stopPreview();
       }
     });
   }
@@ -28,7 +31,9 @@ export class PreviewComponent {
     if (this.cameraService.isConnected() && this.preview) {
       this.streamPreview();
     } else {
-      console.log('No camera connected');
+      if (this.cameraService.state() !== CameraState.READY && this.cameraService.state() !== CameraState.BUSY) {
+        console.log('No camera connected', CameraState[this.cameraService.state()]);
+      }
     }
   }
 
@@ -36,13 +41,39 @@ export class PreviewComponent {
     while (this.preview && this.cameraService.isConnected()) {
       try {
         const blob = await this.cameraService.capturePreviewAsBlob();
-        await this.cameraService.drawCanvas(blob, this.previewCanvas.nativeElement);
+        const dimensions = await this.cameraService.drawCanvas(blob, this.previewCanvas.nativeElement);
+
+        if (!this.previewDimensions) {
+          this.previewDimensions = dimensions;
+          this.adjustCanvasSize();
+        }
+
         await new Promise(resolve => requestAnimationFrame(resolve));
       } catch (err) {
         console.error('Could not refresh preview:', err);
-        this.preview = false;
+        // The camera service will handle the disconnection alert, so we don't need to do it here
+        this.stopPreview();
       }
     }
   }
+
+  private stopPreview() {
+    this.preview = false;
+    this.previewDimensions = null;
+  }
+
+  private adjustCanvasSize() {
+    if (this.previewDimensions) {
+      const canvas = this.previewCanvas.nativeElement;
+      const aspectRatio = this.previewDimensions.width / this.previewDimensions.height;
+
+      // Set a maximum width (adjust as needed)
+      const maxWidth = Math.min(800, window.innerWidth * 0.8);
+
+      canvas.style.width = `${maxWidth}px`;
+      canvas.style.height = `${maxWidth / aspectRatio}px`;
+    }
+  }
+
 
 }

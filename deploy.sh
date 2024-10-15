@@ -20,6 +20,7 @@ touch docs/.nojekyll
 echo "/*.wasm
   Content-Type: application/wasm" >docs/_headers
 echo "include: [_headers]" >docs/_config.yml
+sed -i 's/<base href=\"\/\">/<base href=\"\/ngPhoto2\/\">/' docs/index.html
 echo "Committing and pushing the changes to the GitHub repository"
 git add .
 git commit -m "Deploy to GitHub Pages"

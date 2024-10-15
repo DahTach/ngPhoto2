@@ -12,20 +12,38 @@ export class CaptureComponent {
   @ViewChild('capture_canvas', { static: true }) captureCanvas!: ElementRef<HTMLCanvasElement>;
 
   mimeType: string | null = null;
+  captureDimensions: { width: number, height: number } | null = null;
 
   constructor(public cameraService: CameraService) { }
 
   async captureImage() {
-    if (!this.cameraService.isConnected()) {
+    if (this.cameraService.isConnected()) {
+      try {
+        const capture_blob = await this.cameraService.captureImageAsFile();
+        const dimensions = await this.cameraService.drawCanvas(capture_blob, this.captureCanvas.nativeElement);
+
+        this.captureDimensions = dimensions;
+        this.adjustCaptureCanvasSize();
+
+        this.mimeType = await this.getBlobMimeType(capture_blob);
+      } catch (err) {
+        console.error('Could not capture image:', err);
+      }
+    } else {
       console.log('No Camera Connected');
-      return;
     }
-    try {
-      const captureBlob = await this.cameraService.captureImageAsFile();
-      await this.cameraService.drawCanvas(captureBlob, this.captureCanvas.nativeElement);
-      this.mimeType = await this.getBlobMimeType(captureBlob);
-    } catch (err) {
-      console.error('Could not capture image:', err);
+  }
+
+  private adjustCaptureCanvasSize() {
+    if (this.captureDimensions) {
+      const canvas = this.captureCanvas.nativeElement;
+      const aspectRatio = this.captureDimensions.width / this.captureDimensions.height;
+
+      // Set a maximum width (adjust as needed)
+      const maxWidth = Math.min(1200, window.innerWidth * 0.9);
+
+      canvas.style.width = `${maxWidth}px`;
+      canvas.style.height = `${maxWidth / aspectRatio}px`;
     }
   }
 

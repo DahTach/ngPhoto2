@@ -33,6 +33,7 @@ export class Camera {
   public state: WritableSignal<CameraState> = signal(CameraState.DISCONNECTED)
   public events = new BehaviorSubject<string>('');
 
+
   constructor() {
     effect(() => {
       if (this.state() === CameraState.ERROR) {
@@ -91,16 +92,51 @@ export class Camera {
     }
     this.state.set(CameraState.BUSY);
     let res = this.#queue.then(() => op(this.#context!)).finally(() => {
-      this.state.set(CameraState.READY);
+      if (this.state() !== CameraState.DISCONNECTED) {
+        this.state.set(CameraState.READY);
+      }
     });
     this.#queue = res.catch(err => {
-      if (rethrowIfCritical(err)) {
+      if (this.isDisconnectionError(err)) {
+        this.handleDisconnection();
+      } else if (rethrowIfCritical(err)) {
         this.state.set(CameraState.ERROR);
       }
       throw err;
     }).then(() => { });
     return res;
   }
+
+  private isDisconnectionError(err: any): boolean {
+    // FIX: this aint working
+    return (
+      err instanceof DOMException &&
+      err.name === 'NotFoundError' &&
+      err.message.includes('The device was disconnected')
+    );
+  }
+
+  private handleDisconnection() {
+    this.state.set(CameraState.DISCONNECTED);
+    this.events.next('camera_disconnected');
+  }
+
+  // async #schedule<T>(op: (context: Context) => Promise<T>): Promise<T> {
+  //   if (this.state() !== CameraState.READY) {
+  //     throw new Error('Camera is not ready');
+  //   }
+  //   this.state.set(CameraState.BUSY);
+  //   let res = this.#queue.then(() => op(this.#context!)).finally(() => {
+  //     this.state.set(CameraState.READY);
+  //   });
+  //   this.#queue = res.catch(err => {
+  //     if (rethrowIfCritical(err)) {
+  //       this.state.set(CameraState.ERROR);
+  //     }
+  //     throw err;
+  //   }).then(() => { });
+  //   return res;
+  // }
 
   async disconnect() {
     if (this.#context && !this.#context.isDeleted()) {
